@@ -92,6 +92,8 @@ MAGPIE_VERIFY_VISION=1 npm run test:integration
 
 静态检查和 7 项 Node 单元测试通过；原先针对 `setup.mjs` 的 9 项测试随文件一并删除。此轮没有运行三个应用的客户端探针（检测改动不影响应用读取 `magpie.json`），也没有在 Windows、Linux 或桌面 GUI 中逐项点击验证。
 
+合并 Wisp Science `modelInfo` 改动后，main 与发布前测试的代码树一致（8 项单元测试、6 项集成测试通过）。三个包以 `alpha` 标签发布，`latest` 也指向新版本。随后从公共 npm registry 下载三个包，SHA-512 完整性与本地打包产物一致，且逐字节相同。在全新 HOME 中用官方 Magpie v0.1.1992 执行不带标签的 `magpie plugin add <包名>`，三个包分别装到 WispTerm `0.1.0-alpha.4`、CiteBox 和 Wisp Science `0.1.0-alpha.3`。安装没有创建 `~/.config/<agent-id>`；三个 Agent 都已注册，但在没有应用命令也未接入时不被检测到。
+
 ## 已确认的 Magpie 上游问题
 
 Magpie v0.1.1986 的连续断开并不幂等。当 `magpie.json` 原先包含 `model` 时：
