@@ -42,7 +42,7 @@
 
 在 Magpie **v0.1.1992** 的真实 macOS 页面复现：三包均已安装并启用，但 WispTerm 和 CiteBox 没有 PATH 命令，也没有 `~/.config/<agent-id>` 目录，因此不出现在 Agent 页。原测试仅断言 `magpie agents` 包含名称，无法发现这个问题。
 
-`0.1.0-alpha.2` 增加 `setup.mjs` 加载入口：Magpie 安装并加载插件时，由其 Bun 插件进程创建空接入目录。`agent.js` 仍使用 moejs，只声明连接字段。没有 npm 安装脚本，没有初始化模型、密钥或配置文件；重复加载保持已有内容和权限，遇到同名文件冲突会报错而不是替换它。
+`0.1.0-alpha.2` 增加 `setup.mjs` 加载入口（下一版已撤销，见[检测应用本身](#检测应用本身)）：Magpie 安装并加载插件时，由其 Bun 插件进程创建空接入目录。`agent.js` 仍使用 moejs，只声明连接字段。没有 npm 安装脚本，没有初始化模型、密钥或配置文件；重复加载保持已有内容和权限，遇到同名文件冲突会报错而不是替换它。
 
 修复后的集成测试在全新 HOME 中安装三个打包产物，在执行其他命令之前断言各自目录已自动创建且为空；随后在没有应用命令的 PATH 下断言 `magpie ls` 检测到三者。测试不再手动创建目录来满足检测条件。
 
@@ -75,6 +75,22 @@ MAGPIE_VERIFY_VISION=1 npm run test:integration
 静态检查与 16 项 Node 单元测试通过。WispTerm 最终 `zig build test-full -Dtarget=aarch64-macos --summary all` 为 65/65 步骤成功，17,566 项测试通过、149 项条件跳过；macOS ReleaseFast 应用构建为 27/27 步骤成功。此轮没有重新运行 Wisp Science、CiteBox 的应用客户端，也没有调用真实付费模型。
 
 发布后从公共 npm registry 下载 WispTerm `alpha.3`，SHA-512 和逐字节比对均通过。本机通过 npm `@alpha` 安装，验证安装代码一致，并保持当前模型、现有连接值和文件权限，仅刷新 `modelInfo`。Magpie 安装加载时可能自动重新应用已有连接，因此安装后的文件内容会多出该模型快照。
+
+## 检测应用本身
+
+社区维护者在 [magpie-community/plugins#479](https://github.com/magpie-community/plugins/pull/479) 指出：插件加载时创建 `~/.config/<agent-id>` 会让 Magpie 把未安装的应用报告为已安装，检测应当找到应用本身。WispTerm `0.1.0-alpha.4`、CiteBox 和 Wisp Science `0.1.0-alpha.3` 因此删除了 `setup.mjs` 和 `package.json` 的 `main`，也不再声明 `dir`。每个包只剩 `agent.js`，加载时不运行任何代码，也不创建文件。
+
+依据 Magpie 当前源码（`internal/agentplug` 的 `Desc` 和 `internal/agent` 的 `Detected`）：插件只能声明 `bin`（在 PATH 中查找命令）和 `dir`（目录存在即视为检测到）；配置文件存在也算检测到。内置桌面 Agent 使用的 macOS bundle、`%LOCALAPPDATA%\Programs` 和注册表检测（`desktopApps`、`HasApp`）没有对插件开放。三个应用的桌面版都不会在 PATH 中放置命令，所以已向上游提交 [yetone/magpie#4206](https://github.com/yetone/magpie/issues/4206)，提议在插件中声明桌面应用。在此之前，只装了桌面版的用户需要先用 CLI 接入一次。
+
+在官方 Magpie v0.1.1992、隔离 HOME 和本地虚拟 Provider 下，三个新打包产物通过全部 6 项集成测试：
+
+1. 安装后不存在 `~/.config/<agent-id>`。
+2. PATH 中没有应用命令、也未接入时，`magpie ls` 不报告任何一个 Agent。
+3. 在 PATH 中放入与 `bin` 同名的可执行文件后，三者都被检测到，且仍未创建任何目录。
+4. 在没有预先创建目录的情况下，`magpie <id> fixture/first` 能完成接入，Magpie 会自己写入 `magpie.json`，之后 Agent 被检测到；断开后恢复原状态。
+5. 三个应用原有的配置保护、模型切换和恢复测试保持通过。
+
+静态检查和 7 项 Node 单元测试通过；原先针对 `setup.mjs` 的 9 项测试随文件一并删除。此轮没有运行三个应用的客户端探针（检测改动不影响应用读取 `magpie.json`），也没有在 Windows、Linux 或桌面 GUI 中逐项点击验证。
 
 ## 已确认的 Magpie 上游问题
 
