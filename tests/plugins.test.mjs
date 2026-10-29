@@ -22,8 +22,8 @@ for (const { dir, path } of await packages()) {
   });
 }
 
-test('WispTerm publishes model facts separately from user settings', async () => {
-  const { connect } = await import('../packages/agent-wispterm/agent.js');
+for (const [name, dir] of [['WispTerm', 'agent-wispterm'], ['Wisp Science', 'agent-wisp-science']]) test(`${name} publishes model facts separately from user settings`, async () => {
+  const { connect } = await import(`../packages/${dir}/agent.js`);
   const gateway = { v1: 'http://localhost:3425/v1', key: 'fixture' };
   const result = connect({ gateway, model: { id: 'p/reasoner', context: 400000, output: 128000, efforts: ['low', 'medium', 'high'] } });
   assert.deepEqual(result, { baseURL: gateway.v1, apiKey: gateway.key,
@@ -32,4 +32,10 @@ test('WispTerm publishes model facts separately from user settings', async () =>
   assert.deepEqual(connect({ gateway, model: { id: 'p/unknown', context: 0, output: -1, efforts: [false, 'bad value'] } }), {
     baseURL: gateway.v1, apiKey: gateway.key,
   });
+  // Magpie's placeholder for a model missing from its catalog.
+  assert.deepEqual(connect({ gateway, model: { id: 'p/opaque', name: 'p/opaque', context: 0, output: 0, images: false, efforts: [] } }), {
+    baseURL: gateway.v1, apiKey: gateway.key,
+  });
+  assert.deepEqual(connect({ gateway, model: { id: 'p/partial', context: 2 ** 32, output: 8192.5, efforts: ['high', 'High', 'x'.repeat(33)] } }).modelInfo,
+    { id: 'p/partial', efforts: ['high'] });
 });

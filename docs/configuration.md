@@ -26,7 +26,7 @@ Unix 使用 HOME；Windows 使用 USERPROFILE。三个插件的路径与应用�
 
 ## 所有权与恢复
 
-插件导出纯 `connect` 函数，返回 baseURL 和 apiKey；WispTerm 从 `alpha.3` 起还返回所选模型的 `modelInfo` 对象。Magpie 自己备份、更新和恢复这些字段及声明的 model 字段。断开会恢复接入前的值；原来不存在的字段恢复为不存在。用户添加的其他字段不受影响。原本没有文件时，断开后允许保留 `{}`。
+插件导出纯 `connect` 函数，返回 baseURL 和 apiKey；WispTerm 从 `alpha.3` 起、Wisp Science 从下一个版本起还返回所选模型的 `modelInfo` 对象。Magpie 自己备份、更新和恢复这些字段及声明的 model 字段。断开会恢复接入前的值；原来不存在的字段恢复为不存在。用户添加的其他字段不受影响。原本没有文件时，断开后允许保留 `{}`。
 
 应用只读这个文件，不把其中的密钥写回原生设置、数据库、同步配置或系统钥匙串。保存个人模型设置不会覆盖此文件。文件本身包含网关访问凭据，不应提交到应用仓库。
 
@@ -38,7 +38,7 @@ Unix 使用 HOME；Windows 使用 USERPROFILE。三个插件的路径与应用�
 - Wisp Science：进程首次读取后固定使用该配置，覆盖内置 HTTP 模型运行时，包括桌面与 CLI。个人模型编辑、凭据和验证仍使用原有配置。接入、切换和断开后重启应用；ACP 外部代理有自己的模型管理方式。
 - CiteBox：每次新的 AI 操作读取配置，覆盖文本模型池的运行时端点、模型和密钥，同时保留模型 ID、场景绑定及提示词。个人设置的读取、保存和验证使用原配置。正在运行的操作保留已有快照，后续操作读取新配置。独立的图像生成等专用服务配置不由此协议管理。
 
-基础协议不包含模型能力声明。三个应用均以 Chat Completions 连接，图片输入、流式工具调用和供应商特有选项需由实际所选模型支持。
+基础协议不包含模型能力声明（WispTerm 和 Wisp Science 另见下文的 `modelInfo`）。三个应用均以 Chat Completions 连接，图片输入、流式工具调用和供应商特有选项需由实际所选模型支持。
 
 ## WispTerm 图片输入
 
@@ -63,3 +63,17 @@ Unix 使用 HOME；Windows 使用 USERPROFILE。三个插件的路径与应用�
 例如，在原对象中添加 `"reasoningEffort": "high", "maxTokens": 32768`。这些字段归用户所有，插件不覆盖。已知模型不支持的显式推理档位会使配置无效，切换模型后需检查兼容性。修改后重启 WispTerm 并新建会话。
 
 界面分别显示“最大输出 Token”和模型上下文容量。上下文来自 `modelInfo.context`，不会作为 `context_window` 请求参数发送，也不会新增自动截断或压缩对话。改变实际容量仍取决于 Magpie 和上游模型。Chat Completions 请求会发送 `max_tokens`，Responses 请求会发送 `max_output_tokens`；原生 Codex 订阅协议继续省略其不支持的该参数。
+
+## Wisp Science 模型参数
+
+Wisp Science 插件同样写入 `modelInfo: { id, context, output, efforts }`，规则与 WispTerm 相同：只写 Magpie 确知的正整数容量和合法档位名，未知值不写，只有 ID 时不写该对象。切换模型会更新它，断开时恢复接入前的值。应用只采用 ID 与当前 `model` 一致的快照；格式不对的 `modelInfo` 被忽略，不会让三项连接字段失效。
+
+| 值 | 来源（依次回退） |
+| --- | --- |
+| 上下文容量 | `modelInfo.context`、应用内置模型目录（按模型 ID 精确匹配）、128000 |
+| 最大输出 Token | `modelInfo.output`、模型目录、8192 |
+| 推理档位 | `modelInfo.efforts`、模型目录；都未知时没有可选档位 |
+
+思考强度在 Wisp Science 应用内设置，不使用 `magpie.json` 的用户字段：接入后，输入框旁的思考强度菜单只列出上述档位，选择保存在当前会话上（发送第一条消息前的选择用于新会话），不改写个人模型档案，也不写入网关密钥。默认档位依次取 medium、high、首个档位；会话选择了当前模型不支持的档位时回退到默认，不会让请求失败。没有档位信息时不发送 `reasoning_effort`，使用供应商默认，不强制关闭思考。CLI 的 `WISP_REASONING_EFFORT` 按同样规则生效。
+
+需要包含对应读取逻辑的 Wisp Science 构建；切换模型后仍需重启应用。旧插件不写 `modelInfo` 时，应用按模型目录和默认值处理。
