@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "plugins": [
+    {
+      "package": "@xuzhougeng/magpie-agent-wispterm",
+      "name": "WispTerm",
+      "kind": "agent",
+      "summary": {
+        "en": "WispTerm through Magpie; requires a compatible application build.",
+        "zh": "通过 Magpie 管理 WispTerm 模型，需要支持 magpie.json 的主程序版本。"
+      }
+    },
+    {
+      "package": "@xuzhougeng/magpie-agent-citebox",
+      "name": "CiteBox",
+      "kind": "agent",
+      "summary": {
+        "en": "CiteBox through Magpie; requires a compatible application build.",
+        "zh": "通过 Magpie 管理 CiteBox 模型，需要支持 magpie.json 的主程序版本。"
+      }
+    },
+    {
+      "package": "@xuzhougeng/magpie-agent-wisp-science",
+      "name": "Wisp Science",
+      "kind": "agent",
+      "summary": {
+        "en": "Wisp Science through Magpie; requires a compatible application build.",
+        "zh": "通过 Magpie 管理 Wisp Science 模型，需要支持 magpie.json 的主程序版本。"
+      }
+    }
+  ]
+}

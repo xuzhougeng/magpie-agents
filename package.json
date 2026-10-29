@@ -1,0 +1,19 @@
+{
+  "name": "magpie-agents",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "check": "node scripts/check.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "test:integration": "node --test tests/integration/*.test.mjs",
+    "pack": "node scripts/pack.mjs",
+    "release": "node scripts/publish.mjs"
+  }
+}

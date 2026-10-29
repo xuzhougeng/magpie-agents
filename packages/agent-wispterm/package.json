@@ -1,0 +1,31 @@
+{
+  "name": "@xuzhougeng/magpie-agent-wispterm",
+  "version": "0.1.0-alpha.1",
+  "description": "Magpie Agent plugin for WispTerm",
+  "type": "module",
+  "files": [
+    "agent.js",
+    "README.md",
+    "LICENSE"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xuzhougeng/magpie-agents.git",
+    "directory": "packages/agent-wispterm"
+  },
+  "keywords": [
+    "magpie",
+    "magpie-plugin",
+    "agent",
+    "wispterm"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "tag": "alpha",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "magpie": {
+    "agent": "./agent.js"
+  }
+}
