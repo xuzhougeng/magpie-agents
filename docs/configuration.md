@@ -78,6 +78,30 @@ Wisp Science 插件同样写入 `modelInfo: { id, context, output, efforts }`，
 
 需要包含对应读取逻辑的 Wisp Science 构建；切换模型后仍需重启应用。旧插件不写 `modelInfo` 时，应用按模型目录和默认值处理。
 
+## Wisp Science 资料库（说明、MCP、技能）
+
+Wisp Science 插件声明了 `library`。Magpie 资料库会把共享说明、MCP 服务器和技能写进 Wisp Science 自己的用户级文件：
+
+| 资料库内容 | 写入位置 | Magpie 的写法 | Wisp Science 何时生效 |
+| --- | --- | --- | --- |
+| 共享说明 | `~/.wisp/AGENTS.md` | 在文件里追加一段带标记的内容，保留用户原有文字 | 新会话 |
+| MCP 服务器 | `~/.wisp/mcp.json`（`claude` 格式，即 `mcpServers`） | 合并写入，保留用户自己的服务器和其他字段；密钥写成 `${NAME}` 引用 | 下一次构建 Agent |
+| 技能 | `~/.wisp/skills/<技能>/` | 默认放目录符号链接 | 设置 → 技能 → 重新加载，或重启 |
+
+Windows 上 `~` 是 `%USERPROFILE%`。
+
+Magpie 只给已检测到的 Agent 写入；接入 Magpie 之后，`magpie.json` 存在，Wisp Science 就算检测到了。从资料库移除某一项，或不再分配给 Wisp Science 时，Magpie 只撤回自己写入的部分。
+
+这三个文件是 Wisp Science 的普通用户级配置，不接入 Magpie 也可以手写。
+
+应用版本要求：读取 `~/.wisp/AGENTS.md`、`~/.wisp/mcp.json`，以及跟随技能目录里的符号链接，需要包含用户级配置支持的 Wisp Science 版本。Wisp Science v1.23.0 只会读取 `~/.wisp/skills` 里的普通文件夹，看不到符号链接，因此在旧版本上可以让 Magpie 改用复制方式：
+
+```sh
+magpie library skill how copy wisp-science
+```
+
+对话历史：包含用户级配置支持的 Wisp Science 版本，在经 Magpie 发出的每个请求里用 `X-Session-Id` 带上会话 ID，所以 Magpie 的「会话」页能按会话列出 Wisp Science 的对话。这些会话来自网关记录，是只读的：不能在 Magpie 里恢复，也打不开 Wisp Science 自己的会话文件。
+
 ## CiteBox 模型参数
 
 CiteBox 插件写入同样的 `modelInfo: { id, context, output, efforts }`，写入、切换和恢复规则与上文一致。应用只采用 ID 与当前 `model` 一致的快照；格式不对的 `modelInfo` 整体忽略，不影响三项连接字段。
