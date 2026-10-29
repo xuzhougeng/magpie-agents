@@ -52,6 +52,20 @@ v0.1.1992 回归结果：静态检查、15 项单元测试，以及包含自动�
 
 发布后又从公共 npm registry 下载三个 `0.1.0-alpha.2` 包，验证 registry 的 SHA-512 完整性，并逐字节比对本地已测试的打包产物。在全新 HOME 中分别执行 `magpie plugin add <包名>@alpha`，确认安装直接创建空目录，安装版本为 `0.1.0-alpha.2`，且 `magpie ls` 检测到全部三个 Agent。本机已有的三个插件也已升级；升级前后 `magpie.json` 的存在状态、内容摘要和文件权限一致。
 
+## WispTerm 图片输入回归
+
+WispTerm 的旧 Magpie 读取代码将 `vision` 硬编码为 `off`，且忽略外部文件同名字段。[WispTerm PR #697](https://github.com/xuzhougeng/wispterm/pull/697) 改为默认允许图片输入，并读取用户可选的 `vision` 开关；本次不改变插件写入的三个连接字段，也不需要新的 npm 插件版本。
+
+完整应用测试通过：`zig build test-full -Dtarget=aarch64-macos --summary all`，65 个构建步骤成功、17,529 项通过、149 项条件跳过。公开的 `alpha.2` 插件产物搭配修复后的 WispTerm 探针，在官方 Magpie v0.1.1992 下通过全部 6 项集成测试。探针使用真实请求序列化和 macOS HTTP 实现：缺省、true、`"on"` 时，一个校验正确的 PNG 经网关原样到达本地虚拟上游；false、`"off"` 时没有图片块。原有视觉偏好在模型切换和断开恢复时保留。
+
+这验证图片请求传输，不验证真实模型的识图质量，也没有重新执行 Wisp Science 和 CiteBox 的应用客户端探针。图片输入仍要求上游模型支持。编译上面的 WispTerm 探针后，可单独启用这一回归：
+
+```sh
+MAGPIE_BIN=/absolute/path/to/magpie \
+WISPTERM_PROBE_BIN=/tmp/wispterm-magpie-probe \
+MAGPIE_VERIFY_VISION=1 npm run test:integration
+```
+
 ## 已确认的 Magpie 上游问题
 
 Magpie v0.1.1986 的连续断开并不幂等。当 `magpie.json` 原先包含 `model` 时：

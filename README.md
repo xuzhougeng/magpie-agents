@@ -48,6 +48,8 @@ magpie citebox magpie/provider/model
 
 Magpie 负责写入三个字段和恢复它们的原值；应用在运行时使用该配置，并保留原有个人设置。缺失、空对象或不合法的文件表示没有外部覆盖。详见[配置协议](docs/configuration.md)。
 
+WispTerm 的[视觉修复（PR #697）](https://github.com/xuzhougeng/wispterm/pull/697)在应用读取端：包含该修复的构建默认允许图片输入，`magpie.json` 中的可选 `vision` 开关可显式控制，插件会保留它。旧构建硬编码关闭视觉，单独更新插件无法解决。修改后重启应用并新建会话，具体说明见[图片输入配置](docs/configuration.md#wispterm-图片输入)。
+
 ## 开发与验证
 
 开发检查需要 Node.js 22 或更新版本。`agent.js` 在 Magpie 的 moejs 中运行；`setup.mjs` 在 Magpie 管理的 Bun 插件进程中使用文件系统 API，只负责创建空接入目录。三个包均无第三方依赖，不使用会被 Magpie 跳过的 npm 安装脚本。

@@ -20,6 +20,8 @@ const probes = {
   citebox: process.env.CITEBOX_PROBE_BIN,
 };
 if (process.env.MAGPIE_VERIFY_APPS === '1') assert(Object.values(probes).every(Boolean), 'All three application probes are required');
+if (process.env.MAGPIE_VERIFY_VISION === '1') assert(probes.wispterm, 'WISPTERM_PROBE_BIN is required for the vision regression');
+const fixtureImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII=';
 const readJSON = async path => JSON.parse(await readFile(path, 'utf8'));
 const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -52,7 +54,9 @@ test('packed plugins: install → connect → gateway request → switch → res
     let data = '';
     for await (const chunk of req) data += chunk;
     const body = JSON.parse(data);
-    received.push({ model: body.model, authorization: req.headers.authorization });
+    const images = body.messages.flatMap(message => Array.isArray(message.content)
+      ? message.content.filter(part => part.type === 'image_url').map(part => part.image_url.url) : []);
+    received.push({ model: body.model, authorization: req.headers.authorization, ...(images.length ? { images } : {}) });
     res.end(JSON.stringify({ id: 'fixture-chat', object: 'chat.completion', created: 0, model: body.model,
       choices: [{ index: 0, message: { role: 'assistant', content: 'fixture-ok' }, finish_reason: 'stop' }],
       usage: { prompt_tokens: 1, completion_tokens: 1, total_tokens: 2 } }));
@@ -124,11 +128,12 @@ test('packed plugins: install → connect → gateway request → switch → res
 
   for (const { dir } of entries) {
     const id = dir.slice('agent-'.length);
-    await t.test(`${id}: preserves original values and unrelated edits`, async () => {
+    await t.test(`${id}: preserves original values and unrelated edits`, async agentTest => {
       const folder = join(sandbox, '.config', id);
       await mkdir(folder, { recursive: true });
       const file = join(folder, 'magpie.json');
       const original = { baseURL: 'https://original.example/v1', apiKey: 'original-test-key', model: 'original/model', extra: { theme: 'dark', enabled: true, count: 7 } };
+      if (id === 'wispterm') original.vision = false;
       await writeFile(file, JSON.stringify(original));
       for (const model of ['first', 'second']) {
         await cli(id, `fixture/${model}`);
@@ -137,6 +142,7 @@ test('packed plugins: install → connect → gateway request → switch → res
         assert.equal(config.apiKey, `magpie-${id}`);
         assert.equal(config.model, `fixture/${model}`);
         assert.deepEqual(config.extra, original.extra);
+        if (id === 'wispterm') assert.equal(config.vision, false, 'model switches must preserve the user vision override');
         const response = await fetch(`${config.baseURL}/chat/completions`, { method: 'POST',
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${config.apiKey}` },
           body: JSON.stringify({ model: config.model, messages: [{ role: 'user', content: 'fixture' }], stream: false }) });
@@ -151,6 +157,27 @@ test('packed plugins: install → connect → gateway request → switch → res
           assert.deepEqual(received.at(-1), { model, authorization: 'Bearer upstream-test-only' });
           t.diagnostic(`${id} application client reached fixture/${model} through Magpie`);
         }
+      }
+      if (id === 'wispterm' && probes.wispterm) {
+        await agentTest.test('WispTerm default vision and explicit overrides reach the upstream correctly', async () => {
+          for (const vision of [undefined, true, false, 'on', 'off']) {
+            const config = await readJSON(file);
+            if (vision === undefined) delete config.vision;
+            else config.vision = vision;
+            await writeFile(file, JSON.stringify(config));
+            const enabled = vision === undefined || vision === true || vision === 'on';
+            const before = received.length;
+            await run(resolve(probes.wispterm), [], { env: { ...env, MAGPIE_TEST_CONFIG: file,
+              MAGPIE_TEST_VISION: enabled ? 'on' : 'off' }, timeout: 30000 });
+            assert.equal(received.length, before + 1);
+            assert.deepEqual(received.at(-1), { model: 'second', authorization: 'Bearer upstream-test-only',
+              ...(enabled ? { images: [fixtureImage] } : {}) });
+            assert.deepEqual(await readJSON(file), config, 'the application reader must not modify connection settings');
+          }
+          const config = await readJSON(file);
+          config.vision = original.vision;
+          await writeFile(file, JSON.stringify(config));
+        });
       }
       const connected = await readJSON(file);
       connected.userAdded = 'preserve me';

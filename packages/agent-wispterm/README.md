@@ -24,4 +24,6 @@ The plugin writes `baseURL`, `apiKey`, and `model` to `~/.config/wispterm/magpie
 
 Restart WispTerm after connecting, changing models, or disconnecting. 接入、切换模型或断开后请重启 WispTerm。
 
+WispTerm builds with the Magpie vision fix allow image attachment by default. To disable it, add `"vision": false` to the existing `magpie.json` object; `true` enables it. This user-owned field is preserved by the plugin. Restart WispTerm and create a new session after changing it. Choose an image-capable model in Magpie for image requests. Older WispTerm builds hard-code vision off and ignore this field, so updating only the plugin cannot fix those builds. Native `config` and `ai_profiles` do not override the managed Magpie profile.
+
 Full contract and development instructions: [magpie-agents](https://github.com/xuzhougeng/magpie-agents).
