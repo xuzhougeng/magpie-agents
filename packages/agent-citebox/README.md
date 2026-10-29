@@ -10,6 +10,8 @@ Install the alpha package:
 magpie plugin add @hoptoper/magpie-agent-citebox@alpha
 ```
 
+Version `0.1.0-alpha.2` and later automatically creates `~/.config/citebox` when Magpie loads the installed plugin. No manual directory creation or provider login is required. Initialization leaves existing files and directory permissions untouched and does not create `magpie.json` or select a model. Refresh the Agent list after installation if it is already open.
+
 For local development, from the repository root:
 
 ```sh

@@ -2,7 +2,7 @@
 
 为 [WispTerm](https://github.com/xuzhougeng/wispterm)、[Wisp Science](https://github.com/xuzhougeng/wisp-science) 和 [CiteBox](https://github.com/xuzhougeng/citebox) 提供独立的 Magpie Agent 插件。三个应用的主程序仍在各自仓库维护。
 
-当前预发布版本为 `0.1.0-alpha.1`，npm 作用域为 `@hoptoper`，GitHub 仓库为 `xuzhougeng/magpie-agents`。**应用需要包含 `magpie.json` 读取代码的新构建**；仅安装插件不能让旧版应用自动支持接入。
+当前预发布版本为 `0.1.0-alpha.2`，npm 作用域为 `@hoptoper`，GitHub 仓库为 `xuzhougeng/magpie-agents`。**应用需要包含 `magpie.json` 读取代码的新构建**；仅安装插件不能让旧版应用自动支持接入。
 
 | 应用 | 包 | 接入、切换、断开后生效时间 |
 | --- | --- | --- |
@@ -12,23 +12,7 @@
 
 ## 安装与使用
 
-先在 Magpie 配置模型供应商。首次接入时，为要使用的应用创建空的接入目录，再按需安装插件。桌面应用的可执行文件通常不在 PATH 中，Magpie 需要这个目录才能把已注册的插件显示在 Agent 页。
-
-macOS / Linux（只需保留要使用的应用）：
-
-```sh
-mkdir -p ~/.config/wispterm ~/.config/wisp-science ~/.config/citebox
-```
-
-Windows PowerShell：
-
-```powershell
-'wispterm', 'wisp-science', 'citebox' | ForEach-Object {
-  New-Item -ItemType Directory -Force -Path "$env:USERPROFILE/.config/$_" | Out-Null
-}
-```
-
-这些命令只创建目录，不写入模型或密钥，不改动应用的个人设置。随后安装插件：
+先在 Magpie 配置模型供应商，再按需安装插件。**从 `0.1.0-alpha.2` 起，安装并加载插件会自动创建对应的空接入目录，无需手动执行 `mkdir`。** 初始化不会创建 `magpie.json`、选择模型或覆盖已有设置。
 
 ```sh
 magpie plugin add @hoptoper/magpie-agent-wispterm@alpha
@@ -54,9 +38,9 @@ magpie citebox magpie/provider/model
 
 保持 Magpie 网关运行。断开某个应用时执行一次，例如 `magpie wispterm default`。WispTerm 和 Wisp Science 随后需要重启。
 
-排查“插件已安装但 Agent 不显示”时，用 `magpie ls` 检查已检测到的 Agent。`magpie agents` 包含 `not detected` 的条目，仅有名称不能证明页面会显示；请补建上述目录并重新检测。也可直接用 CLI 接入，它会创建配置目录。
+排查“插件已安装但 Agent 不显示”时，用 `magpie ls` 检查已检测到的 Agent。`magpie agents` 包含 `not detected` 的条目，仅有名称不能证明页面会显示；请先升级到 `0.1.0-alpha.2` 或更新版本，再点击重新检测。旧版 `alpha.1` 不会自动初始化目录。
 
-这些包只注册 Agent，不负责供应商登录。供应商认证由 Magpie 的 Provider 管理。
+这些包注册 Agent，并在插件加载时初始化各自的接入目录，不负责供应商登录。供应商认证由 Magpie 的 Provider 管理。
 
 ## 配置约定
 
@@ -66,7 +50,7 @@ Magpie 负责写入三个字段和恢复它们的原值；应用在运行时使�
 
 ## 开发与验证
 
-需要 Node.js 22 或更新版本；插件自身不依赖 Node API 或第三方包。
+开发检查需要 Node.js 22 或更新版本。`agent.js` 在 Magpie 的 moejs 中运行；`setup.mjs` 在 Magpie 管理的 Bun 插件进程中使用文件系统 API，只负责创建空接入目录。三个包均无第三方依赖，不使用会被 Magpie 跳过的 npm 安装脚本。
 
 ```sh
 npm run check
@@ -87,7 +71,7 @@ npm run release -- agent-wispterm
 npm run release -- agent-wispterm --publish
 ```
 
-当前包使用 `alpha` 标签，安装时显式使用 `@alpha`，或固定为 `@0.1.0-alpha.1`。
+当前包使用 `alpha` 标签，安装时显式使用 `@alpha`，或固定为 `@0.1.0-alpha.2`。
 
 `registry.json` 的三个 `kind: "agent"` 条目已通过 [社区 PR #479](https://github.com/magpie-community/plugins/pull/479) 提交，等待社区审核合并；合并并刷新 registry 后才会出现在插件搜索中。目前可使用上面的 npm 包名直接安装。仓库的 `magpie-plugin` topic 不能代替三个子包的独立登记。
 

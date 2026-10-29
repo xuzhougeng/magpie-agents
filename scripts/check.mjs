@@ -9,12 +9,14 @@ const ids = new Set();
 for (const { dir, path, pkg } of await packages()) {
   assert.equal(pkg.name, `@hoptoper/magpie-${dir}`);
   assert.equal(pkg.type, 'module');
-  assert.equal(pkg.main, undefined, 'Agent-only packages must not start the provider host');
+  assert.equal(pkg.main, './setup.mjs', 'The plugin host initializes the detection directory');
   assert.equal(pkg.exports, undefined);
   assert.equal(pkg.magpie.agent, './agent.js');
   assert.equal(pkg.publishConfig.access, 'public');
   assert.equal(pkg.dependencies, undefined, 'Keep each package self-contained');
   assert(pkg.files.includes('agent.js'));
+  assert(pkg.files.includes('setup.mjs'));
+  assert.equal(pkg.scripts, undefined, 'Magpie skips npm install scripts; initialize on plugin load');
   const source = await readFile(join(path, 'agent.js'), 'utf8');
   assert(!/\b(import\s|require\s*\(|process\.|fetch\s*\()/.test(source), 'Agent runtime has no Node or network APIs');
   const { agent, connect } = await import(pathToFileURL(join(path, 'agent.js')));
