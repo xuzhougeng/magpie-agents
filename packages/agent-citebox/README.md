@@ -10,7 +10,7 @@ Install the alpha package:
 magpie plugin add @hoptoper/magpie-agent-citebox@alpha
 ```
 
-Version `0.1.0-alpha.2` and later automatically creates `~/.config/citebox` when Magpie loads the installed plugin. No manual directory creation or provider login is required. Initialization leaves existing files and directory permissions untouched and does not create `magpie.json` or select a model. Refresh the Agent list after installation if it is already open.
+Magpie detects CiteBox by the `citebox` command on PATH, or by `~/.config/citebox/magpie.json` once connected. The plugin creates no files. Magpie's plugin API cannot yet declare a desktop app's install location ([yetone/magpie#4206](https://github.com/yetone/magpie/issues/4206)), so with only the desktop app installed, connect once from the CLI as shown below; the Agent page lists CiteBox after that. `0.1.0-alpha.2` created an empty `~/.config/citebox` folder on load; later versions no longer use it for detection, and you can remove it if it is unused.
 
 For local development, from the repository root:
 

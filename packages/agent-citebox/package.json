@@ -1,11 +1,10 @@
 {
   "name": "@hoptoper/magpie-agent-citebox",
-  "version": "0.1.0-alpha.2",
+  "version": "0.1.0-alpha.3",
   "description": "Magpie Agent plugin for CiteBox",
   "type": "module",
   "files": [
     "agent.js",
-    "setup.mjs",
     "README.md",
     "LICENSE"
   ],
@@ -28,6 +27,5 @@
   },
   "magpie": {
     "agent": "./agent.js"
-  },
-  "main": "./setup.mjs"
+  }
 }

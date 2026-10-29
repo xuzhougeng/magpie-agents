@@ -2,8 +2,10 @@
 export const agent = {
   id: "citebox",
   name: "CiteBox",
+  // Magpie detects the app by this command on PATH, or by the config once connected.
+  // A plugin cannot yet declare a desktop app bundle or install folder, and must not
+  // create the config folder just to be detected.
   bin: "citebox",
-  dir: "~/.config/citebox",
   config: "~/.config/citebox/magpie.json",
   format: "json",
   model: "model",

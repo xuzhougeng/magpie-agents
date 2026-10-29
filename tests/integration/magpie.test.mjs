@@ -3,7 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtemp, mkdir, readFile, writeFile, rm, copyFile, chmod, readdir } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { delimiter, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { execFile, spawn } from 'node:child_process';
 import { promisify } from 'node:util';
@@ -103,30 +103,43 @@ test('packed plugins: install → connect → gateway request → switch → res
     const tarball = `${entry.pkg.name.replace('@', '').replace('/', '-')}-${entry.pkg.version}.tgz`;
     await run('tar', ['-xzf', join(root, 'artifacts', tarball), '-C', installDir]);
     const folder = join(sandbox, '.config', entry.dir.slice('agent-'.length));
-    await assert.rejects(readdir(folder), { code: 'ENOENT' });
     await cli('plugin', 'add', join(installDir, 'package'));
-    // Installation itself must initialize the folder, before any separate CLI
-    // command, provider login, connection or manual directory creation.
-    assert.deepEqual(await readdir(folder), [], `${entry.dir}: install must create an empty detection directory`);
+    // A plugin must not create files only so Magpie reports its app as installed.
+    await assert.rejects(readdir(folder), { code: 'ENOENT' }, `${entry.dir}: install must not create its config folder`);
   }
   const agents = await cli('agents');
   for (const name of ['WispTerm', 'Wisp Science', 'CiteBox']) {
     assert(agents.includes(name), `Installed agent missing from Magpie: ${name}`);
   }
-  await t.test('desktop discovery: installed plugins are immediately detected without manual setup', async () => {
-    // `agents` includes undetected plugins; only `ls` proves that they are
-    // eligible for the desktop list. Exclude any real app CLI from PATH.
-    const detected = async () => (await run(resolve(binary), ['ls'], {
-      env: { ...env, PATH: binDir }, timeout: 90000,
-    })).stdout;
-    const listing = await detected();
+  // `agents` includes undetected plugins; only `ls` lists what the desktop shows.
+  const listed = async path => (await run(resolve(binary), ['ls'], { env: { ...env, PATH: path }, timeout: 90000 })).stdout;
+  const isDetected = (listing, name) => {
+    const row = listing.split('\n').find(line => line.includes(name));
+    return Boolean(row) && !row.includes('not detected');
+  };
+  const agentOf = async dir => (await import(pathToFileURL(join(root, 'packages', dir, 'agent.js')))).agent;
+  await t.test('desktop discovery: an agent is detected by its app, not by installing the plugin', async () => {
+    // Exclude any real app command from PATH.
+    const before = await listed(binDir);
     for (const { dir } of entries) {
-      const { agent } = await import(pathToFileURL(join(root, 'packages', dir, 'agent.js')));
-      const folder = join(sandbox, '.config', agent.id);
-      const row = listing.split('\n').find(line => line.includes(agent.name));
-      assert(row && !row.includes('not detected'), `${agent.name} missing from detected agents after install`);
-      await assert.rejects(readFile(join(folder, 'magpie.json')), { code: 'ENOENT' });
+      const { name } = await agentOf(dir);
+      assert(!isDetected(before, name), `${name} detected with neither its app nor a connection`);
     }
+    const appBin = join(sandbox, 'app-bin');
+    await mkdir(appBin);
+    for (const { dir } of entries) {
+      const { bin } = await agentOf(dir);
+      const command = join(appBin, process.platform === 'win32' ? `${bin}.cmd` : bin);
+      await writeFile(command, process.platform === 'win32' ? '@exit /b 0\r\n' : '#!/bin/sh\nexit 0\n');
+      await chmod(command, 0o755);
+    }
+    const withApps = await listed(`${appBin}${delimiter}${binDir}`);
+    for (const { dir } of entries) {
+      const { id, name } = await agentOf(dir);
+      assert(isDetected(withApps, name), `${name} not detected with its command on PATH`);
+      await assert.rejects(readdir(join(sandbox, '.config', id)), { code: 'ENOENT' }, `${name}: detection must not create files`);
+    }
+    await rm(appBin, { recursive: true });
   });
   const daemon = spawn(resolve(binary), ['serve'], { env, stdio: ['ignore', 'pipe', 'pipe'] });
   let logs = '';
@@ -147,6 +160,18 @@ test('packed plugins: install → connect → gateway request → switch → res
     await pause(100);
   }
   assert(ready, `Gateway did not start: ${logs}`);
+
+  await t.test('desktop discovery: an undetected agent connects from the CLI and is then detected by its config', async () => {
+    for (const { dir } of entries) {
+      const { id, name } = await agentOf(dir);
+      const folder = join(sandbox, '.config', id);
+      await cli(id, 'fixture/first');
+      assert.equal((await readJSON(join(folder, 'magpie.json'))).model, 'fixture/first');
+      assert(isDetected(await listed(binDir), name), `${name} not detected after connecting`);
+      await cli(id, 'default');
+      await rm(folder, { recursive: true, force: true });
+    }
+  });
 
   for (const { dir } of entries) {
     const id = dir.slice('agent-'.length);

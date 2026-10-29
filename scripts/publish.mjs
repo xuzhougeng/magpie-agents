@@ -6,7 +6,7 @@ const entry = (await packages()).find(p => p.dir === selected || p.pkg.name === 
 if (!entry || flags.some(f => f !== '--publish')) {
   throw new Error('Usage: npm run release -- agent-wispterm [--publish]. Default: npm publish --dry-run.');
 }
-for (const args of [['scripts/check.mjs'], ['--test', 'tests/plugins.test.mjs', 'tests/setup.test.mjs']]) {
+for (const args of [['scripts/check.mjs'], ['--test', 'tests/plugins.test.mjs']]) {
   const result = spawnSync(process.execPath, args, { cwd: root, stdio: 'inherit' });
   if (result.status !== 0) throw new Error('Release checks failed');
 }

@@ -2,8 +2,10 @@
 export const agent = {
   id: "wispterm",
   name: "WispTerm",
+  // Magpie detects the app by this command on PATH, or by the config once connected.
+  // A plugin cannot yet declare a desktop app bundle or install folder, and must not
+  // create the config folder just to be detected.
   bin: "wispterm",
-  dir: "~/.config/wispterm",
   config: "~/.config/wispterm/magpie.json",
   format: "json",
   model: "model",
