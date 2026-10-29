@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import { mkdtemp, mkdir, readFile, writeFile, rm, copyFile, chmod } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { execFile, spawn } from 'node:child_process';
 import { promisify } from 'node:util';
 import { createServer } from 'node:http';
@@ -80,6 +81,27 @@ test('packed plugins: install → connect → gateway request → switch → res
   for (const name of ['WispTerm', 'Wisp Science', 'CiteBox']) {
     assert(agents.includes(name), `Installed agent missing from Magpie: ${name}`);
   }
+  await t.test('desktop discovery: empty integration directories make all three agents detectable', async () => {
+    // `agents` includes undetected plugins; only `ls` proves that they are
+    // eligible for the desktop list. Exclude any real app CLI from PATH.
+    const detected = async () => (await run(resolve(binary), ['ls'], {
+      env: { ...env, PATH: binDir }, timeout: 90000,
+    })).stdout;
+    const before = await detected();
+    for (const { dir } of entries) {
+      const { agent } = await import(pathToFileURL(join(root, 'packages', dir, 'agent.js')));
+      assert(!before.includes(agent.name), `${agent.name} unexpectedly detected before initialization`);
+    }
+    for (const { dir } of entries) {
+      const { agent } = await import(pathToFileURL(join(root, 'packages', dir, 'agent.js')));
+      const folder = join(sandbox, '.config', agent.id);
+      await mkdir(folder, { recursive: true });
+      const listing = await detected();
+      const row = listing.split('\n').find(line => line.includes(agent.name));
+      assert(row && !row.includes('not detected'), `${agent.name} missing from detected agents after initialization`);
+      await assert.rejects(readFile(join(folder, 'magpie.json')), { code: 'ENOENT' });
+    }
+  });
   const daemon = spawn(resolve(binary), ['serve'], { env, stdio: ['ignore', 'pipe', 'pipe'] });
   let logs = '';
   daemon.stderr.on('data', chunk => { logs = (logs + chunk).slice(-3000); });

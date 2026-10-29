@@ -12,7 +12,23 @@
 
 ## 安装与使用
 
-先在 Magpie 配置模型供应商，再按需安装插件：
+先在 Magpie 配置模型供应商。首次接入时，为要使用的应用创建空的接入目录，再按需安装插件。桌面应用的可执行文件通常不在 PATH 中，Magpie 需要这个目录才能把已注册的插件显示在 Agent 页。
+
+macOS / Linux（只需保留要使用的应用）：
+
+```sh
+mkdir -p ~/.config/wispterm ~/.config/wisp-science ~/.config/citebox
+```
+
+Windows PowerShell：
+
+```powershell
+'wispterm', 'wisp-science', 'citebox' | ForEach-Object {
+  New-Item -ItemType Directory -Force -Path "$env:USERPROFILE/.config/$_" | Out-Null
+}
+```
+
+这些命令只创建目录，不写入模型或密钥，不改动应用的个人设置。随后安装插件：
 
 ```sh
 magpie plugin add @hoptoper/magpie-agent-wispterm@alpha
@@ -28,7 +44,7 @@ magpie plugin add /absolute/path/to/magpie-agents/packages/agent-wisp-science
 magpie plugin add /absolute/path/to/magpie-agents/packages/agent-citebox
 ```
 
-安装后，插件会注册相应 Agent。可以在 Magpie 选择模型，或使用 CLI（将 `provider/model` 替换成已配置的模型）：
+安装后，点击 Magpie 顶栏的“重新检测本机的 Agent”；如果已有其他 Agent 接入，展开“显示其余”即可在“未设置”列表看到新 Agent。可以在 Magpie 选择模型，或使用 CLI（将 `provider/model` 替换成已配置的模型）：
 
 ```sh
 magpie wispterm magpie/provider/model
@@ -36,7 +52,9 @@ magpie wisp-science magpie/provider/model
 magpie citebox magpie/provider/model
 ```
 
-保持 Magpie 网关运行。断开某个应用时执行一次，例如 `magpie wispterm default`。WispTerm 和 Wisp Science 随后需要重启。首次接入前，如果应用二进制不在 PATH 且连接目录尚不存在，Magpie 可能显示 `not detected`；仍可通过上述 CLI 接入，它会创建配置目录。
+保持 Magpie 网关运行。断开某个应用时执行一次，例如 `magpie wispterm default`。WispTerm 和 Wisp Science 随后需要重启。
+
+排查“插件已安装但 Agent 不显示”时，用 `magpie ls` 检查已检测到的 Agent。`magpie agents` 包含 `not detected` 的条目，仅有名称不能证明页面会显示；请补建上述目录并重新检测。也可直接用 CLI 接入，它会创建配置目录。
 
 这些包只注册 Agent，不负责供应商登录。供应商认证由 Magpie 的 Provider 管理。
 
@@ -71,6 +89,6 @@ npm run release -- agent-wispterm --publish
 
 当前包使用 `alpha` 标签，安装时显式使用 `@alpha`，或固定为 `@0.1.0-alpha.1`。
 
-`registry.json` 是三个 `kind: "agent"` 条目的草稿，尚未提交到[社区 registry](https://github.com/magpie-community/plugins)。仓库的 `magpie-plugin` topic 不能代替三个子包的独立登记。
+`registry.json` 的三个 `kind: "agent"` 条目已通过 [社区 PR #479](https://github.com/magpie-community/plugins/pull/479) 提交，等待社区审核合并；合并并刷新 registry 后才会出现在插件搜索中。目前可使用上面的 npm 包名直接安装。仓库的 `magpie-plugin` topic 不能代替三个子包的独立登记。
 
 插件 API 依据 [Magpie Agent 插件文档](https://usemagpie.ai/docs/plugins#agent-plugins)。版本兼容性和已发现的上游问题见验证记录。
