@@ -21,3 +21,15 @@ for (const { dir, path } of await packages()) {
     });
   });
 }
+
+test('WispTerm publishes model facts separately from user settings', async () => {
+  const { connect } = await import('../packages/agent-wispterm/agent.js');
+  const gateway = { v1: 'http://localhost:3425/v1', key: 'fixture' };
+  const result = connect({ gateway, model: { id: 'p/reasoner', context: 400000, output: 128000, efforts: ['low', 'medium', 'high'] } });
+  assert.deepEqual(result, { baseURL: gateway.v1, apiKey: gateway.key,
+    modelInfo: { id: 'p/reasoner', context: 400000, output: 128000, efforts: ['low', 'medium', 'high'] } });
+  for (const key of ['thinking', 'reasoningEffort', 'maxTokens', 'contextWindow', 'protocol', 'vision']) assert.equal(result[key], undefined);
+  assert.deepEqual(connect({ gateway, model: { id: 'p/unknown', context: 0, output: -1, efforts: [false, 'bad value'] } }), {
+    baseURL: gateway.v1, apiKey: gateway.key,
+  });
+});

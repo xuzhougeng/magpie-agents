@@ -26,7 +26,7 @@ Unix 使用 HOME；Windows 使用 USERPROFILE。三个插件的路径与应用�
 
 ## 所有权与恢复
 
-插件导出纯 `connect({ gateway })` 函数，只返回 baseURL 和 apiKey。Magpie 自己备份、更新和恢复这两个字段及声明的 model 字段。断开会恢复接入前的值；原来不存在的字段恢复为不存在。用户添加的其他字段不受影响。原本没有文件时，断开后允许保留 `{}`。
+插件导出纯 `connect` 函数，返回 baseURL 和 apiKey；WispTerm 从 `alpha.3` 起还返回所选模型的 `modelInfo` 对象。Magpie 自己备份、更新和恢复这些字段及声明的 model 字段。断开会恢复接入前的值；原来不存在的字段恢复为不存在。用户添加的其他字段不受影响。原本没有文件时，断开后允许保留 `{}`。
 
 应用只读这个文件，不把其中的密钥写回原生设置、数据库、同步配置或系统钥匙串。保存个人模型设置不会覆盖此文件。文件本身包含网关访问凭据，不应提交到应用仓库。
 
@@ -45,3 +45,21 @@ Unix 使用 HOME；Windows 使用 USERPROFILE。三个插件的路径与应用�
 包含视觉修复的 WispTerm 构建默认允许 Magpie 配置附加图片；实际识图能力仍由所选模型决定。可在现有 `magpie.json` 对象中添加 `"vision": false` 关闭，或 `"vision": true` 开启。也接受 `"on"`/`"off"`、`"true"`/`"false"`、`"enabled"`/`"disabled"`；缺省或 null 使用开启的默认值，其他值视为无效配置。
 
 这是用户字段，插件不会写入或覆盖它，切换模型和断开连接时也会保留。修改后重启 WispTerm 并新建会话；已有会话保留原快照。原生 `config` 或 `ai_profiles` 不控制这个只读 Magpie 配置。旧版 WispTerm 在读取代码中将视觉写死为关闭，必须升级应用，单独升级 npm 插件无法改变该行为。
+
+
+## WispTerm 模型参数（alpha.3）
+
+插件写入 `modelInfo: { id, context, output, efforts }`，只包含 Magpie 确知的模型信息。切换模型会更新该对象；未知值不会伪造为一个固定容量。断开时恢复接入前的对象。WispTerm 只使用 ID 与当前 `model` 匹配的快照，避免手动修改模型后沿用旧能力。
+
+| 用户字段 | 默认值和作用 |
+| --- | --- |
+| `thinking` | 支持布尔值、enabled/disabled、on/off、true/false、auto。 |
+| `reasoningEffort` | 有能力信息时优先 medium、其次 high、再取首个支持档位；未知时 auto，不强制关闭思考。用户可指定模型支持的档位或 auto。 |
+| `maxTokens` | 最大输出 Token：采用模型的 output，未知时为 8192；显式正整数覆盖不得突破已知模型输出上限。 |
+| `protocol` | chat_completions 或 responses；默认前者。这是 Magpie 网关协议，后端模型由 Magpie 转换。 |
+| `stream`、`agent` | 布尔值，默认 true。 |
+| `systemPrompt` | 可选系统提示文本。 |
+
+例如，在原对象中添加 `"reasoningEffort": "high", "maxTokens": 32768`。这些字段归用户所有，插件不覆盖。已知模型不支持的显式推理档位会使配置无效，切换模型后需检查兼容性。修改后重启 WispTerm 并新建会话。
+
+界面分别显示“最大输出 Token”和模型上下文容量。上下文来自 `modelInfo.context`，不会作为 `context_window` 请求参数发送，也不会新增自动截断或压缩对话。改变实际容量仍取决于 Magpie 和上游模型。Chat Completions 请求会发送 `max_tokens`，Responses 请求会发送 `max_output_tokens`；原生 Codex 订阅协议继续省略其不支持的该参数。

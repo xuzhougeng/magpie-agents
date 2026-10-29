@@ -1,6 +1,6 @@
 {
   "name": "@hoptoper/magpie-agent-wispterm",
-  "version": "0.1.0-alpha.2",
+  "version": "0.1.0-alpha.3",
   "description": "Magpie Agent plugin for WispTerm",
   "type": "module",
   "files": [

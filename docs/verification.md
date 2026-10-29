@@ -66,6 +66,14 @@ WISPTERM_PROBE_BIN=/tmp/wispterm-magpie-probe \
 MAGPIE_VERIFY_VISION=1 npm run test:integration
 ```
 
+## WispTerm 推理与模型容量回归
+
+`0.1.0-alpha.3` 将 Magpie 提供的模型上下文容量、输出上限和推理档位写入独立的 `modelInfo` 快照。WispTerm 采用与当前模型 ID 匹配的信息生成默认值，并读取用户的 `thinking`、`reasoningEffort`、`maxTokens`、`protocol`、`stream`、`agent` 和 `systemPrompt`。上下文容量只用于显示，不冒充最大输出长度，也不新增自动压缩行为。
+
+在官方 Magpie v0.1.1992、隔离 HOME 和本地虚拟 Provider 下，打包后的三个插件通过全部 7 项集成测试。WispTerm 使用真实序列化和 macOS HTTP 客户端验证：模型切换更新容量和默认推理强度；用户推理强度与输出上限在 Chat Completions、Responses 两种协议下到达上游；切换不会覆盖用户选项；断开恢复原始 `modelInfo` 对象；图片输入回归继续通过。Responses 路径包含 Magpie 到上游 Chat Completions 的协议转换。
+
+静态检查与 16 项 Node 单元测试通过。WispTerm 最终 `zig build test-full -Dtarget=aarch64-macos --summary all` 为 65/65 步骤成功，17,561 项测试通过、149 项条件跳过；macOS ReleaseFast 应用构建为 27/27 步骤成功。此轮没有重新运行 Wisp Science、CiteBox 的应用客户端，也没有调用真实付费模型。
+
 ## 已确认的 Magpie 上游问题
 
 Magpie v0.1.1986 的连续断开并不幂等。当 `magpie.json` 原先包含 `model` 时：

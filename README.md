@@ -2,7 +2,7 @@
 
 为 [WispTerm](https://github.com/xuzhougeng/wispterm)、[Wisp Science](https://github.com/xuzhougeng/wisp-science) 和 [CiteBox](https://github.com/xuzhougeng/citebox) 提供独立的 Magpie Agent 插件。三个应用的主程序仍在各自仓库维护。
 
-当前预发布版本为 `0.1.0-alpha.2`，npm 作用域为 `@hoptoper`，GitHub 仓库为 `xuzhougeng/magpie-agents`。**应用需要包含 `magpie.json` 读取代码的新构建**；仅安装插件不能让旧版应用自动支持接入。
+WispTerm 当前开发版本为 `0.1.0-alpha.3`，CiteBox 和 Wisp Science 为 `0.1.0-alpha.2`，npm 作用域为 `@hoptoper`，GitHub 仓库为 `xuzhougeng/magpie-agents`。**应用需要包含 `magpie.json` 读取代码的新构建**；仅安装插件不能让旧版应用自动支持接入。
 
 | 应用 | 包 | 接入、切换、断开后生效时间 |
 | --- | --- | --- |
@@ -46,9 +46,11 @@ magpie citebox magpie/provider/model
 
 每个应用只读取 `~/.config/<agent-id>/magpie.json`，字段为 `baseURL`、`apiKey` 和 `model`。Windows 使用 `%USERPROFILE%\.config\<agent-id>\magpie.json`。该路径固定，不受 `XDG_CONFIG_HOME` 或应用原生配置目录影响。
 
-Magpie 负责写入三个字段和恢复它们的原值；应用在运行时使用该配置，并保留原有个人设置。缺失、空对象或不合法的文件表示没有外部覆盖。详见[配置协议](docs/configuration.md)。
+Magpie 负责写入连接字段和恢复它们的原值；WispTerm `alpha.3` 另外写入 `modelInfo`，同步上下文容量、输出上限和推理档位。应用在运行时使用该配置，并保留原有个人设置。缺失、空对象或不合法的文件表示没有外部覆盖。详见[配置协议](docs/configuration.md)。
 
 WispTerm 的[视觉修复（PR #697）](https://github.com/xuzhougeng/wispterm/pull/697)在应用读取端：包含该修复的构建默认允许图片输入，`magpie.json` 中的可选 `vision` 开关可显式控制，插件会保留它。旧构建硬编码关闭视觉，单独更新插件无法解决。修改后重启应用并新建会话，具体说明见[图片输入配置](docs/configuration.md#wispterm-图片输入)。
+
+WispTerm 的[模型参数修复（PR #698）](https://github.com/xuzhougeng/wispterm/pull/698)配合插件 `alpha.3`，读取模型容量及用户的推理强度、输出限制等选项。上下文容量和最大输出 Token 分别显示；已有会话保留原快照，更新后请重启并新建会话。详见[模型参数配置](docs/configuration.md#wispterm-模型参数alpha3)。
 
 ## 开发与验证
 
@@ -73,7 +75,7 @@ npm run release -- agent-wispterm
 npm run release -- agent-wispterm --publish
 ```
 
-当前包使用 `alpha` 标签，安装时显式使用 `@alpha`，或固定为 `@0.1.0-alpha.2`。
+当前包使用 `alpha` 标签，安装时显式使用 `@alpha`，或固定为对应应用的已发布版本。
 
 `registry.json` 的三个 `kind: "agent"` 条目已通过 [社区 PR #479](https://github.com/magpie-community/plugins/pull/479) 提交，等待社区审核合并；合并并刷新 registry 后才会出现在插件搜索中。目前可使用上面的 npm 包名直接安装。仓库的 `magpie-plugin` topic 不能代替三个子包的独立登记。
 
