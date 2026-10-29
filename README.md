@@ -2,7 +2,7 @@
 
 为 [WispTerm](https://github.com/xuzhougeng/wispterm)、[Wisp Science](https://github.com/xuzhougeng/wisp-science) 和 [CiteBox](https://github.com/xuzhougeng/citebox) 提供独立的 Magpie Agent 插件。三个应用的主程序仍在各自仓库维护。
 
-当前为 `0.1.0-alpha.1`，已完成本地打包和实际 Magpie 网关验证，**尚未发布 npm 包**。应用需要包含本次 `magpie.json` 读取代码的新构建；仅安装插件不能让旧版应用自动支持接入。
+当前预发布版本为 `0.1.0-alpha.1`，npm 作用域为 `@hoptoper`，GitHub 仓库为 `xuzhougeng/magpie-agents`。**应用需要包含 `magpie.json` 读取代码的新构建**；仅安装插件不能让旧版应用自动支持接入。
 
 | 应用 | 包 | 接入、切换、断开后生效时间 |
 | --- | --- | --- |
@@ -10,9 +10,17 @@
 | Wisp Science | `@hoptoper/magpie-agent-wisp-science` | 重启应用或 CLI 进程 |
 | CiteBox | `@hoptoper/magpie-agent-citebox` | 下一次 AI 操作 |
 
-## 本地使用
+## 安装与使用
 
-先在 Magpie 配置模型供应商，再从本仓库安装所需插件：
+先在 Magpie 配置模型供应商，再按需安装插件：
+
+```sh
+magpie plugin add @hoptoper/magpie-agent-wispterm@alpha
+magpie plugin add @hoptoper/magpie-agent-wisp-science@alpha
+magpie plugin add @hoptoper/magpie-agent-citebox@alpha
+```
+
+也可以从本地源码安装：
 
 ```sh
 magpie plugin add /absolute/path/to/magpie-agents/packages/agent-wispterm
@@ -61,8 +69,8 @@ npm run release -- agent-wispterm
 npm run release -- agent-wispterm --publish
 ```
 
-当前包使用 `alpha` 标签。发布后才能运行 `magpie plugin add @hoptoper/magpie-agent-wispterm@alpha`，其他两个包同理。
+当前包使用 `alpha` 标签，安装时显式使用 `@alpha`，或固定为 `@0.1.0-alpha.1`。
 
-`registry.json` 是三个 `kind: "agent"` 条目的草稿。npm 发布后可将条目提交到[社区 registry](https://github.com/magpie-community/plugins)。仓库的 `magpie-plugin` topic 不能代替三个子包的独立登记。
+`registry.json` 是三个 `kind: "agent"` 条目的草稿，尚未提交到[社区 registry](https://github.com/magpie-community/plugins)。仓库的 `magpie-plugin` topic 不能代替三个子包的独立登记。
 
 插件 API 依据 [Magpie Agent 插件文档](https://usemagpie.ai/docs/plugins#agent-plugins)。版本兼容性和已发现的上游问题见验证记录。
