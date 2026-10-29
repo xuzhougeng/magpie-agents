@@ -20,8 +20,10 @@ magpie wisp-science magpie/<provider>/<model>
 magpie wisp-science default
 ```
 
-The plugin writes `baseURL`, `apiKey`, and `model` to `~/.config/wisp-science/magpie.json`. The same home-relative path is used on macOS, Linux, and Windows (`%USERPROFILE%/.config/wisp-science/magpie.json`); `XDG_CONFIG_HOME` and the app's ordinary settings directory do not relocate this integration file. Magpie restores the previous values on disconnect and preserves unrelated keys. A new file may remain as `{}` after disconnect; readers must treat that as inactive.
+The plugin writes `baseURL`, `apiKey`, `model`, and a `modelInfo` snapshot (ID, context capacity, output limit, supported reasoning efforts; only values Magpie knows) to `~/.config/wisp-science/magpie.json`. The same home-relative path is used on macOS, Linux, and Windows (`%USERPROFILE%/.config/wisp-science/magpie.json`); `XDG_CONFIG_HOME` and the app's ordinary settings directory do not relocate this integration file. Magpie restores the previous values on disconnect and preserves unrelated keys. A new file may remain as `{}` after disconnect; readers must treat that as inactive.
 
 Restart Wisp Science after connecting, changing models, or disconnecting. 接入、切换模型或断开后请重启 Wisp Science。
+
+With a matching Wisp Science build, `modelInfo` supplies the context capacity, the output limit, and the reasoning levels offered in the app. Reasoning effort is set inside Wisp Science per conversation, from the composer's effort menu; the default is medium, then high, then the first listed level, and an unsupported choice falls back to that default. Unknown levels leave the provider default. The snapshot is used only when its `id` matches `model`. Restart Wisp Science after switching models.
 
 Full contract and development instructions: [magpie-agents](https://github.com/xuzhougeng/magpie-agents).

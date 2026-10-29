@@ -181,6 +181,7 @@ test('packed plugins: install → connect → gateway request → switch → res
       const file = join(folder, 'magpie.json');
       const original = { baseURL: 'https://original.example/v1', apiKey: 'original-test-key', model: 'original/model', extra: { theme: 'dark', enabled: true, count: 7 } };
       if (id === 'wispterm') Object.assign(original, { vision: false, modelInfo: { id: 'original/model', context: 9000, output: 1000 } });
+      if (id === 'wisp-science') original.modelInfo = { id: 'original/model', context: 9000, output: 1000 };
       await writeFile(file, JSON.stringify(original));
       for (const model of ['first', 'second']) {
         await cli(id, `fixture/${model}`);
@@ -190,7 +191,7 @@ test('packed plugins: install → connect → gateway request → switch → res
         assert.equal(config.model, `fixture/${model}`);
         assert.deepEqual(config.extra, original.extra);
         if (id === 'wispterm') assert.equal(config.vision, false, 'model switches must preserve the user vision override');
-        if (id === 'wispterm') assert.deepEqual(config.modelInfo, { id: `fixture/${model}`, context: modelFacts[model].context_length,
+        if (id !== 'citebox') assert.deepEqual(config.modelInfo, { id: `fixture/${model}`, context: modelFacts[model].context_length,
           output: modelFacts[model].max_output_tokens, efforts: modelFacts[model].supported_reasoning_levels });
         const response = await fetch(`${config.baseURL}/chat/completions`, { method: 'POST',
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${config.apiKey}` },
@@ -204,13 +205,26 @@ test('packed plugins: install → connect → gateway request → switch → res
           await run(resolve(probes[id]), args, { env: { ...env, MAGPIE_TEST_CONFIG: file }, timeout: 30000 });
           assert.equal(received.length, beforeProbe + 1, `${id} must make its own upstream request`);
           assert.deepEqual(received.at(-1), { model, authorization: 'Bearer upstream-test-only' });
-          if (id === 'wispterm') {
+          if (id !== 'citebox') {
             const body = wireRequests.at(-1).body;
             assert.equal(body.max_tokens ?? body.max_completion_tokens ?? body.max_output_tokens, modelFacts[model].max_output_tokens);
             assert.equal(body.reasoning_effort ?? body.reasoning?.effort, model === 'first' ? 'medium' : 'high');
           }
           t.diagnostic(`${id} application client reached fixture/${model} through Magpie`);
         }
+      }
+      if (id === 'wisp-science' && probes['wisp-science']) {
+        await agentTest.test('Wisp Science sends the session effort only when the model supports it', async () => {
+          // MAGPIE_TEST_REASONING_EFFORT stands in for the conversation's setting.
+          for (const [requested, sent] of [['low', 'low'], ['max', 'high'], ['', 'high']]) {
+            await run(resolve(probes['wisp-science']), [], { env: { ...env, MAGPIE_TEST_CONFIG: file,
+              MAGPIE_TEST_REASONING_EFFORT: requested }, timeout: 30000 });
+            const body = wireRequests.at(-1).body;
+            assert.equal(body.model, 'second');
+            assert.equal(body.reasoning_effort ?? body.reasoning?.effort, sent);
+            assert.equal(body.max_tokens ?? body.max_completion_tokens ?? body.max_output_tokens, modelFacts.second.max_output_tokens);
+          }
+        });
       }
       if (id === 'wispterm' && probes.wispterm) {
         await agentTest.test('WispTerm reasoning and output overrides work through both gateway protocols', async () => {
