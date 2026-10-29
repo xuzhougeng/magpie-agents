@@ -1,6 +1,6 @@
 {
   "name": "@hoptoper/magpie-agent-wisp-science",
-  "version": "0.1.0-alpha.3",
+  "version": "0.1.0",
   "description": "Magpie Agent plugin for Wisp Science",
   "type": "module",
   "files": [
@@ -22,7 +22,7 @@
   ],
   "publishConfig": {
     "access": "public",
-    "tag": "alpha",
+    "tag": "latest",
     "registry": "https://registry.npmjs.org/"
   },
   "magpie": {
