@@ -94,6 +94,18 @@ MAGPIE_VERIFY_VISION=1 npm run test:integration
 
 合并 Wisp Science `modelInfo` 改动后，main 与发布前测试的代码树一致（8 项单元测试、6 项集成测试通过）。三个包以 `alpha` 标签发布，`latest` 也指向新版本。随后从公共 npm registry 下载三个包，SHA-512 完整性与本地打包产物一致，且逐字节相同。在全新 HOME 中用官方 Magpie v0.1.1992 执行不带标签的 `magpie plugin add <包名>`，三个包分别装到 WispTerm `0.1.0-alpha.4`、CiteBox 和 Wisp Science `0.1.0-alpha.3`。安装没有创建 `~/.config/<agent-id>`；三个 Agent 都已注册，但在没有应用命令也未接入时不被检测到。
 
+## CiteBox 模型参数（未发布）
+
+CiteBox 插件的 `connect` 与 WispTerm、Wisp Science 相同，另外返回 `modelInfo`。配套应用改动见 [xuzhougeng/citebox#72](https://github.com/xuzhougeng/citebox/pull/72)：CiteBox 按 `modelInfo.output` 设置最大输出，思考强度在设置页的 Magpie 面板中选择并单独保存；检索规划和证据判定在 Magpie 下使用 low 档位和 45 秒超时。
+
+在官方 Magpie v0.1.1992、隔离 HOME 和本地虚拟 Provider 下，打包后的三个插件通过全部 8 项集成测试，CiteBox 和 Wisp Science 使用应用客户端探针。CiteBox 请求按模型带上 `max_tokens`（128000 / 32000）和默认档位（medium / high）；`MAGPIE_TEST_REASONING_EFFORT` 模拟设置页保存的档位，low 原样发送，当前模型不支持的 max 回退为 high。本机的 WispTerm 探针是模型参数改动之前的构建，不发送 `max_tokens`，因此未纳入本轮。
+
+静态检查与 9 项 Node 单元测试通过（Node 22.23.4）。CiteBox `make ci` 通过：222 项 JavaScript 测试、PowerShell 脚本测试、完整 Go 测试。
+
+经本机 Magpie 直接调用 `codex/gpt-6.1-sol`、使用 CiteBox 的真实提示词测得：检索规划 low 12.6–13.8 秒、medium 15.0–16.5 秒、high 21.3 秒、xhigh 32.2 秒，不发送档位 13.4–15.9 秒；12 条证据的判定 low 21.5 秒。原 20 秒超时在 high 以上必然超时，证据判定即使在 low 也超时。
+
+未验证：CiteBox 桌面版 GUI、Windows 和 Linux、改动后经真实网关的完整问答；设置页面板只在隔离的开发服务器和浏览器中检查过。
+
 ## 已确认的 Magpie 上游问题
 
 Magpie v0.1.1986 的连续断开并不幂等。当 `magpie.json` 原先包含 `model` 时：
@@ -149,6 +161,8 @@ CiteBox：
 ```sh
 go test -c -o /tmp/citebox-magpie.test ./internal/service
 ```
+
+CiteBox 探针需要包含 [xuzhougeng/citebox#72](https://github.com/xuzhougeng/citebox/pull/72) 的构建；旧探针不发送推理档位，会让 CiteBox 的模型参数断言失败。
 
 回到插件仓库运行：
 

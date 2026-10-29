@@ -22,7 +22,7 @@ for (const { dir, path } of await packages()) {
   });
 }
 
-for (const [name, dir] of [['WispTerm', 'agent-wispterm'], ['Wisp Science', 'agent-wisp-science']]) test(`${name} publishes model facts separately from user settings`, async () => {
+for (const [name, dir] of [['WispTerm', 'agent-wispterm'], ['Wisp Science', 'agent-wisp-science'], ['CiteBox', 'agent-citebox']]) test(`${name} publishes model facts separately from user settings`, async () => {
   const { connect } = await import(`../packages/${dir}/agent.js`);
   const gateway = { v1: 'http://localhost:3425/v1', key: 'fixture' };
   const result = connect({ gateway, model: { id: 'p/reasoner', context: 400000, output: 128000, efforts: ['low', 'medium', 'high'] } });
