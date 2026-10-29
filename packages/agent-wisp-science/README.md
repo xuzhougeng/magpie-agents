@@ -1,13 +1,13 @@
 # Wisp Science Agent for Magpie
 
-Package: `@xuzhougeng/magpie-agent-wisp-science`. This is an Agent plugin; provider authentication stays in Magpie. No `plugin login` is needed for this package.
+Package: `@hoptoper/magpie-agent-wisp-science`. This is an Agent plugin; provider authentication stays in Magpie. No `plugin login` is needed for this package.
 
 **Prerelease.** Requires the Wisp Science source changes described in the repository README; older released builds do not read this file.
 
 Install the alpha package:
 
 ```sh
-magpie plugin add @xuzhougeng/magpie-agent-wisp-science@alpha
+magpie plugin add @hoptoper/magpie-agent-wisp-science@alpha
 ```
 
 For local development, from the repository root:

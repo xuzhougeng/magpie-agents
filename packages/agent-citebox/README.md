@@ -1,13 +1,13 @@
 # CiteBox Agent for Magpie
 
-Package: `@xuzhougeng/magpie-agent-citebox`. This is an Agent plugin; provider authentication stays in Magpie. No `plugin login` is needed for this package.
+Package: `@hoptoper/magpie-agent-citebox`. This is an Agent plugin; provider authentication stays in Magpie. No `plugin login` is needed for this package.
 
 **Prerelease.** Requires the CiteBox source changes described in the repository README; older released builds do not read this file.
 
 Install the alpha package:
 
 ```sh
-magpie plugin add @xuzhougeng/magpie-agent-citebox@alpha
+magpie plugin add @hoptoper/magpie-agent-citebox@alpha
 ```
 
 For local development, from the repository root:

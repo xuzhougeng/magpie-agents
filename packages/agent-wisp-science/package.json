@@ -1,5 +1,5 @@
 {
-  "name": "@xuzhougeng/magpie-agent-wisp-science",
+  "name": "@hoptoper/magpie-agent-wisp-science",
   "version": "0.1.0-alpha.1",
   "description": "Magpie Agent plugin for Wisp Science",
   "type": "module",

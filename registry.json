@@ -2,7 +2,7 @@
   "version": 1,
   "plugins": [
     {
-      "package": "@xuzhougeng/magpie-agent-wispterm",
+      "package": "@hoptoper/magpie-agent-wispterm",
       "name": "WispTerm",
       "kind": "agent",
       "summary": {
@@ -11,7 +11,7 @@
       }
     },
     {
-      "package": "@xuzhougeng/magpie-agent-citebox",
+      "package": "@hoptoper/magpie-agent-citebox",
       "name": "CiteBox",
       "kind": "agent",
       "summary": {
@@ -20,7 +20,7 @@
       }
     },
     {
-      "package": "@xuzhougeng/magpie-agent-wisp-science",
+      "package": "@hoptoper/magpie-agent-wisp-science",
       "name": "Wisp Science",
       "kind": "agent",
       "summary": {

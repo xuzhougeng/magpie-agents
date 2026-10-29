@@ -6,9 +6,9 @@
 
 | 应用 | 包 | 接入、切换、断开后生效时间 |
 | --- | --- | --- |
-| WispTerm | `@xuzhougeng/magpie-agent-wispterm` | 重启应用 |
-| Wisp Science | `@xuzhougeng/magpie-agent-wisp-science` | 重启应用或 CLI 进程 |
-| CiteBox | `@xuzhougeng/magpie-agent-citebox` | 下一次 AI 操作 |
+| WispTerm | `@hoptoper/magpie-agent-wispterm` | 重启应用 |
+| Wisp Science | `@hoptoper/magpie-agent-wisp-science` | 重启应用或 CLI 进程 |
+| CiteBox | `@hoptoper/magpie-agent-citebox` | 下一次 AI 操作 |
 
 ## 本地使用
 
@@ -61,7 +61,7 @@ npm run release -- agent-wispterm
 npm run release -- agent-wispterm --publish
 ```
 
-当前包使用 `alpha` 标签。发布后才能运行 `magpie plugin add @xuzhougeng/magpie-agent-wispterm@alpha`，其他两个包同理。
+当前包使用 `alpha` 标签。发布后才能运行 `magpie plugin add @hoptoper/magpie-agent-wispterm@alpha`，其他两个包同理。
 
 `registry.json` 是三个 `kind: "agent"` 条目的草稿。npm 发布后可将条目提交到[社区 registry](https://github.com/magpie-community/plugins)。仓库的 `magpie-plugin` topic 不能代替三个子包的独立登记。
 

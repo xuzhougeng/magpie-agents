@@ -7,7 +7,7 @@ import { packages, root } from './packages.mjs';
 const registry = JSON.parse(await readFile(join(root, 'registry.json'), 'utf8'));
 const ids = new Set();
 for (const { dir, path, pkg } of await packages()) {
-  assert.equal(pkg.name, `@xuzhougeng/magpie-${dir}`);
+  assert.equal(pkg.name, `@hoptoper/magpie-${dir}`);
   assert.equal(pkg.type, 'module');
   assert.equal(pkg.main, undefined, 'Agent-only packages must not start the provider host');
   assert.equal(pkg.exports, undefined);

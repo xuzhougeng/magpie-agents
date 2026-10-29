@@ -1,13 +1,13 @@
 # WispTerm Agent for Magpie
 
-Package: `@xuzhougeng/magpie-agent-wispterm`. This is an Agent plugin; provider authentication stays in Magpie. No `plugin login` is needed for this package.
+Package: `@hoptoper/magpie-agent-wispterm`. This is an Agent plugin; provider authentication stays in Magpie. No `plugin login` is needed for this package.
 
 **Prerelease.** Requires the WispTerm source changes described in the repository README; older released builds do not read this file.
 
 Install the alpha package:
 
 ```sh
-magpie plugin add @xuzhougeng/magpie-agent-wispterm@alpha
+magpie plugin add @hoptoper/magpie-agent-wispterm@alpha
 ```
 
 For local development, from the repository root:
