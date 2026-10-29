@@ -20,8 +20,10 @@ magpie citebox magpie/<provider>/<model>
 magpie citebox default
 ```
 
-The plugin writes `baseURL`, `apiKey`, and `model` to `~/.config/citebox/magpie.json`. The same home-relative path is used on macOS, Linux, and Windows (`%USERPROFILE%/.config/citebox/magpie.json`); `XDG_CONFIG_HOME` and the app's ordinary settings directory do not relocate this integration file. Magpie restores the previous values on disconnect and preserves unrelated keys. A new file may remain as `{}` after disconnect; readers must treat that as inactive.
+The plugin writes `baseURL`, `apiKey`, `model`, and a `modelInfo` snapshot (ID, context capacity, output limit, supported reasoning efforts; only values Magpie knows) to `~/.config/citebox/magpie.json`. The same home-relative path is used on macOS, Linux, and Windows (`%USERPROFILE%/.config/citebox/magpie.json`); `XDG_CONFIG_HOME` and the app's ordinary settings directory do not relocate this integration file. Magpie restores the previous values on disconnect and preserves unrelated keys. A new file may remain as `{}` after disconnect; readers must treat that as inactive.
 
 CiteBox reads changes before the next operation. CiteBox 会在下一次操作时读取连接、模型切换或断开。
+
+With a matching CiteBox build, `modelInfo` supplies the output limit and the reasoning levels offered in the app. Reasoning effort is set inside CiteBox, in the Magpie panel under Settings → Model Configuration; the choice is stored apart from your personal model settings and takes effect on the next operation. The default is medium, then high, then the first listed level, and a choice the current model does not support falls back to that default. Unknown levels leave the provider default. The snapshot is used only when its `id` matches `model`.
 
 Full contract and development instructions: [magpie-agents](https://github.com/xuzhougeng/magpie-agents).
