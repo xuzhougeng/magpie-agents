@@ -2,7 +2,7 @@
 
 为 [WispTerm](https://github.com/xuzhougeng/wispterm)、[Wisp Science](https://github.com/xuzhougeng/wisp-science) 和 [CiteBox](https://github.com/xuzhougeng/citebox) 提供独立的 Magpie Agent 插件。三个应用的主程序仍在各自仓库维护。
 
-已发布的 npm 版本：WispTerm 为 `0.1.0-alpha.3`，CiteBox 和 Wisp Science 为 `0.1.0-alpha.2`。仓库源码是尚未发布的下一版（WispTerm `0.1.0-alpha.4`，CiteBox 和 Wisp Science `0.1.0-alpha.3`），改为检测应用本身，见[检测](#检测)。npm 作用域为 `@hoptoper`，GitHub 仓库为 `xuzhougeng/magpie-agents`。**应用需要包含 `magpie.json` 读取代码的新构建**；仅安装插件不能让旧版应用自动支持接入。
+当前 npm 版本：WispTerm 为 `0.1.0-alpha.4`，CiteBox 和 Wisp Science 为 `0.1.0-alpha.3`，`alpha` 和 `latest` 标签都指向它们。这些版本改为检测应用本身，见[检测](#检测)；Wisp Science 从 `alpha.3` 起也写入 `modelInfo`。npm 作用域为 `@hoptoper`，GitHub 仓库为 `xuzhougeng/magpie-agents`。**应用需要包含 `magpie.json` 读取代码的新构建**；仅安装插件不能让旧版应用自动支持接入。
 
 | 应用 | 包 | 接入、切换、断开后生效时间 |
 | --- | --- | --- |
@@ -81,8 +81,8 @@ npm run release -- agent-wispterm
 npm run release -- agent-wispterm --publish
 ```
 
-当前包使用 `alpha` 标签，安装时显式使用 `@alpha`，或固定为对应应用的已发布版本。
+当前包以 `alpha` 标签发布，`latest` 也指向同一版本，所以不带标签安装（插件市场的方式）也能拿到当前版本。仍是预发布版本号。
 
-`registry.json` 的三个 `kind: "agent"` 条目已通过 [社区 PR #479](https://github.com/magpie-community/plugins/pull/479) 提交。维护者的审核要求是：npm 上有修复后的版本；Wisp Science 和 CiteBox 先发布包含读取代码的正式版；检测应用本身而不是创建目录。检测部分已在本仓库完成，声明桌面安装位置的能力等待 [yetone/magpie#4206](https://github.com/yetone/magpie/issues/4206)。PR 合并并刷新 registry 后，这些插件才会出现在插件搜索中。目前可使用上面的 npm 包名直接安装。仓库的 `magpie-plugin` topic 不能代替三个子包的独立登记。
+`registry.json` 的三个 `kind: "agent"` 条目已通过 [社区 PR #479](https://github.com/magpie-community/plugins/pull/479) 提交。维护者的审核要求是：npm 上有修复后的版本；Wisp Science 和 CiteBox 先发布包含读取代码的正式版；检测应用本身而不是创建目录。修复后的版本已发布到 npm，检测部分已完成；声明桌面安装位置的能力等待 [yetone/magpie#4206](https://github.com/yetone/magpie/issues/4206)。PR 合并并刷新 registry 后，这些插件才会出现在插件搜索中。目前可使用上面的 npm 包名直接安装。仓库的 `magpie-plugin` topic 不能代替三个子包的独立登记。
 
 插件 API 依据 [Magpie Agent 插件文档](https://usemagpie.ai/docs/plugins#agent-plugins)。版本兼容性和已发现的上游问题见验证记录。
