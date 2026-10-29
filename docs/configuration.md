@@ -26,7 +26,7 @@ Unix 使用 HOME；Windows 使用 USERPROFILE。三个插件的路径与应用�
 
 ## 所有权与恢复
 
-插件导出纯 `connect` 函数，返回 baseURL 和 apiKey；WispTerm 从 `alpha.3` 起、Wisp Science 从 `alpha.3` 起、CiteBox 在 `alpha.3` 之后的版本还返回所选模型的 `modelInfo` 对象。Magpie 自己备份、更新和恢复这些字段及声明的 model 字段。断开会恢复接入前的值；原来不存在的字段恢复为不存在。用户添加的其他字段不受影响。原本没有文件时，断开后允许保留 `{}`。
+插件导出纯 `connect` 函数，返回 baseURL 和 apiKey；WispTerm 从 `alpha.3` 起、Wisp Science 从 `alpha.3` 起、CiteBox 从 `0.1.0` 起还返回所选模型的 `modelInfo` 对象。Magpie 自己备份、更新和恢复这些字段及声明的 model 字段。断开会恢复接入前的值；原来不存在的字段恢复为不存在。用户添加的其他字段不受影响。原本没有文件时，断开后允许保留 `{}`。
 
 应用只读这个文件，不把其中的密钥写回原生设置、数据库、同步配置或系统钥匙串。保存个人模型设置不会覆盖此文件。文件本身包含网关访问凭据，不应提交到应用仓库。
 
