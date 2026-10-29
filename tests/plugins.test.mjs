@@ -39,3 +39,10 @@ for (const [name, dir] of [['WispTerm', 'agent-wispterm'], ['Wisp Science', 'age
   assert.deepEqual(connect({ gateway, model: { id: 'p/partial', context: 2 ** 32, output: 8192.5, efforts: ['high', 'High', 'x'.repeat(33)] } }).modelInfo,
     { id: 'p/partial', efforts: ['high'] });
 });
+
+test('Wisp Science takes the Library in its own user folder', async () => {
+  const { agent } = await import('../packages/agent-wisp-science/agent.js');
+  assert.deepEqual(agent.library, {
+    instructions: '~/.wisp/AGENTS.md', mcp: '~/.wisp/mcp.json', mcpFormat: 'claude', skills: '~/.wisp/skills',
+  });
+});
