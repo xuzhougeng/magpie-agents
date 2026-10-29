@@ -72,7 +72,9 @@ MAGPIE_VERIFY_VISION=1 npm run test:integration
 
 在官方 Magpie v0.1.1992、隔离 HOME 和本地虚拟 Provider 下，打包后的三个插件通过全部 7 项集成测试。WispTerm 使用真实序列化和 macOS HTTP 客户端验证：模型切换更新容量和默认推理强度；用户推理强度与输出上限在 Chat Completions、Responses 两种协议下到达上游；切换不会覆盖用户选项；断开恢复原始 `modelInfo` 对象；图片输入回归继续通过。Responses 路径包含 Magpie 到上游 Chat Completions 的协议转换。
 
-静态检查与 16 项 Node 单元测试通过。WispTerm 最终 `zig build test-full -Dtarget=aarch64-macos --summary all` 为 65/65 步骤成功，17,561 项测试通过、149 项条件跳过；macOS ReleaseFast 应用构建为 27/27 步骤成功。此轮没有重新运行 Wisp Science、CiteBox 的应用客户端，也没有调用真实付费模型。
+静态检查与 16 项 Node 单元测试通过。WispTerm 最终 `zig build test-full -Dtarget=aarch64-macos --summary all` 为 65/65 步骤成功，17,566 项测试通过、149 项条件跳过；macOS ReleaseFast 应用构建为 27/27 步骤成功。此轮没有重新运行 Wisp Science、CiteBox 的应用客户端，也没有调用真实付费模型。
+
+发布后从公共 npm registry 下载 WispTerm `alpha.3`，SHA-512 和逐字节比对均通过。本机通过 npm `@alpha` 安装，验证安装代码一致，并保持当前模型、现有连接值和文件权限，仅刷新 `modelInfo`。Magpie 安装加载时可能自动重新应用已有连接，因此安装后的文件内容会多出该模型快照。
 
 ## 已确认的 Magpie 上游问题
 

@@ -2,7 +2,7 @@
 
 为 [WispTerm](https://github.com/xuzhougeng/wispterm)、[Wisp Science](https://github.com/xuzhougeng/wisp-science) 和 [CiteBox](https://github.com/xuzhougeng/citebox) 提供独立的 Magpie Agent 插件。三个应用的主程序仍在各自仓库维护。
 
-WispTerm 当前开发版本为 `0.1.0-alpha.3`，CiteBox 和 Wisp Science 为 `0.1.0-alpha.2`，npm 作用域为 `@hoptoper`，GitHub 仓库为 `xuzhougeng/magpie-agents`。**应用需要包含 `magpie.json` 读取代码的新构建**；仅安装插件不能让旧版应用自动支持接入。
+当前 npm 版本：WispTerm 为 `0.1.0-alpha.3`，CiteBox 和 Wisp Science 为 `0.1.0-alpha.2`。npm 作用域为 `@hoptoper`，GitHub 仓库为 `xuzhougeng/magpie-agents`。**应用需要包含 `magpie.json` 读取代码的新构建**；仅安装插件不能让旧版应用自动支持接入。
 
 | 应用 | 包 | 接入、切换、断开后生效时间 |
 | --- | --- | --- |
