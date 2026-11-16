@@ -282,4 +282,34 @@ test('packed plugins: install → connect → gateway request → switch → res
       }
     });
   }
+
+  await t.test("wisp-science: the Library writes Wisp Science's user files and keeps the user's own", async () => {
+    // The Library gives only to agents detected here; a connection's config makes it so.
+    await cli('wisp-science', 'fixture/first');
+    const wisp = join(sandbox, '.wisp');
+    await mkdir(wisp, { recursive: true });
+    const instructions = join(wisp, 'AGENTS.md');
+    const mcp = join(wisp, 'mcp.json');
+    await writeFile(instructions, '# my own rules\n');
+    await writeFile(mcp, JSON.stringify({ theme: 'dark', mcpServers: { mine: { command: 'mine-mcp' } } }));
+    const shared = join(sandbox, 'shared-rules.md');
+    await writeFile(shared, 'Prefer tidy data.\n');
+    await cli('library', 'instructions', 'set', shared);
+    await cli('library', 'instructions', 'agents', 'wisp-science');
+    await cli('library', 'mcp', 'add', 'fs', 'npx', '-y', '@modelcontextprotocol/server-filesystem', 'agents=wisp-science');
+    const rules = await readFile(instructions, 'utf8');
+    assert(rules.startsWith('# my own rules\n') && rules.includes('Prefer tidy data.'), rules);
+    const written = await readJSON(mcp);
+    assert.equal(written.theme, 'dark');
+    assert.deepEqual(written.mcpServers.mine, { command: 'mine-mcp' });
+    assert.equal(written.mcpServers.fs.command, 'npx');
+    assert.deepEqual(written.mcpServers.fs.args, ['-y', '@modelcontextprotocol/server-filesystem']);
+
+    // Taking them out of the Library takes back only what magpie wrote.
+    await cli('library', 'mcp', 'rm', 'fs');
+    await cli('library', 'instructions', 'agents', 'none');
+    assert.deepEqual(await readJSON(mcp), { theme: 'dark', mcpServers: { mine: { command: 'mine-mcp' } } });
+    assert.equal((await readFile(instructions, 'utf8')).trim(), '# my own rules');
+    await cli('wisp-science', 'default');
+  });
 });

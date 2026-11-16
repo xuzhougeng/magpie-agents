@@ -11,6 +11,14 @@ export const agent = {
   model: "model",
   ua: ["wisp-science"],
   notice: "Restart Wisp Science after connecting, changing models, or disconnecting. 接入、切换模型或断开后请重启 Wisp Science。",
+  // Wisp Science's own user-level files, where Magpie's Library writes its
+  // instructions, MCP servers and skills and keeps what the user wrote there.
+  library: {
+    instructions: "~/.wisp/AGENTS.md",
+    mcp: "~/.wisp/mcp.json",
+    mcpFormat: "claude",
+    skills: "~/.wisp/skills",
+  },
 };
 
 // Magpie writes the model and owns per-key backup/restoration.

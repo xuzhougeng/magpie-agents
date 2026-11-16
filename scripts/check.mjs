@@ -26,6 +26,13 @@ for (const { dir, path, pkg } of await packages()) {
   assert.equal(agent.bin, agent.id, 'Detect the app by its own command');
   assert.equal(agent.dir, undefined, 'The config folder is not evidence that the app is installed');
   assert.equal(agent.model, 'model');
+  if (agent.library !== undefined) {
+    // Magpie leaves out a relative place and refuses an MCP format it can't write.
+    for (const [key, place] of Object.entries(agent.library)) {
+      if (key !== 'mcpFormat') assert.match(place, /^~\//, `library.${key} must be a home-relative path`);
+    }
+    if (agent.library.mcp) assert.equal(agent.library.mcpFormat, 'claude');
+  }
   assert(!ids.has(agent.id));
   ids.add(agent.id);
   assert.equal(typeof connect, 'function');

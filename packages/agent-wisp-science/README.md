@@ -26,4 +26,11 @@ Restart Wisp Science after connecting, changing models, or disconnecting. 接入
 
 With a matching Wisp Science build, `modelInfo` supplies the context capacity, the output limit, and the reasoning levels offered in the app. Reasoning effort is set inside Wisp Science per conversation, from the composer's effort menu; the default is medium, then high, then the first listed level, and an unsupported choice falls back to that default. Unknown levels leave the provider default. The snapshot is used only when its `id` matches `model`. Restart Wisp Science after switching models.
 
+Magpie's Library also writes into Wisp Science's own user files:
+- shared instructions go into `~/.wisp/AGENTS.md`, as a marked block;
+- MCP servers go into `~/.wisp/mcp.json`, in Claude's `mcpServers` format;
+- skills go into `~/.wisp/skills`.
+
+Whatever the user wrote in these files is kept. Wisp Science reads the first two, and skill symlinks, only in builds with user-level config support. On older builds, run `magpie library skill how copy wisp-science` so skills arrive as copies. Those builds also name each conversation to Magpie's gateway, so Magpie's Sessions page lists them, read-only, from the gateway's records.
+
 Full contract and development instructions: [magpie-agents](https://github.com/xuzhougeng/magpie-agents).
